@@ -87,13 +87,14 @@ void loop()
         if (adcArray[i].hasChanged()) {
             auto rawValue = adcArray[i].getValue();
             auto normalizedValue = map(rawValue, 0, 1023, 127, 0);
+#if USB_SERIAL
             Serial.print("ADC ");
             Serial.print(i);
             Serial.print(" value: ");
             Serial.print(rawValue);
             Serial.print(" normalized: ");
             Serial.println(normalizedValue);
-#ifdef USB_MIDI
+#else
             usbMIDI.sendControlChange(101 + i, normalizedValue, 1);
 #endif
             pixels.setPixelColor(i, pixels.Color(normalizedValue,normalizedValue,normalizedValue));
@@ -103,18 +104,20 @@ void loop()
     for (uint8_t i = 0; i < BUTTONS; i++){
         buttonArray[i].update();
         if (buttonArray[i].fell()) {
+#if USB_SERIAL
             Serial.print("Button: ");
             Serial.print(i);
             Serial.println(" fell");
-#ifdef USB_MIDI
+#else
             usbMIDI.sendControlChange(119 + i, 1, 1);
 #endif
         }
         if (buttonArray[i].rose()) {
+#if USB_SERIAL
             Serial.print("Button: ");
             Serial.print(i);
             Serial.println(" rose");
-#ifdef USB_MIDI
+#else
             usbMIDI.sendControlChange(119 + i, 0, 1);
 #endif
         }
