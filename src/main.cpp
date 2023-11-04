@@ -2,6 +2,7 @@
 #include <ResponsiveAnalogRead.h>
 #include <Adafruit_NeoPixel.h>
 #include <Bounce2.h>
+#include <EEPROM.h>
 #ifdef USB_MIDI
 #include <MIDI.h>
 #include <MIDIUSB.h>
@@ -13,6 +14,12 @@ MIDI_CREATE_DEFAULT_INSTANCE();
 #define PIXELS_PIN 23
 #define BUTTONS 8
 Adafruit_NeoPixel pixels (PIXELS, PIXELS_PIN,  NEO_GRB + NEO_KHZ800);
+
+struct OnedayState {
+    bool buttons[8];
+    uint16_t knobs[8];
+    uint16_t crc = 0x0;
+} onedayState;
 
 Bounce buttonArray[BUTTONS] = {
         Bounce(0,25),
@@ -51,6 +58,7 @@ void setup()
     usbMIDI.setHandleStop(midiHandleStop);
 #endif
 
+    EEPROM.get(0x0, onedayState);
 
     for (auto &anal : adcArray) {
         anal.enableEdgeSnap();
